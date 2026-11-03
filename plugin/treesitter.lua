@@ -7,14 +7,45 @@ vim.pack.add({ 'https://github.com/nvim-treesitter/nvim-treesitter' })
 -- Тут можно указать предстановленные парсеры
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/main/SUPPORTED_LANGUAGES.md
 require('nvim-treesitter').install({
-  -- В арче все эти парсеры ставятся вместе с nvim
-  -- 'c',
-  -- 'lua',
-  -- 'luadoc',
-  -- 'markdown',
-  -- 'markdown_inline',
-  -- 'vim',
-  -- 'vimdoc',
+  'bash',
+  'c',
+  'cmake',
+  'cpp',
+  'dockerfile',
+  'lua',
+  'luadoc',
+  'make',
+  'markdown',
+  'markdown_inline',
+  'python',
+  'r',
+  'rust',
+  'sql',
+  'toml',
+  'vim',
+  'vimdoc',
+})
+
+-- Доп сопаставления типов файлов
+vim.filetype.add({
+  filename = {
+    ['Dockerfile'] = 'dockerfile',
+    ['Containerfile'] = 'dockerfile',
+    ['CMakeLists.txt'] = 'cmake',
+    ['Makefile'] = 'make',
+    ['GNUmakefile'] = 'make',
+  },
+  extension = {
+    dockerfile = 'dockerfile',
+    cmake = 'cmake',
+    mk = 'make',
+    sql = 'sql',
+    toml = 'toml',
+    R = 'r',
+    r = 'r',
+    Rmd = 'rmd',
+    qmd = 'quarto',
+  },
 })
 
 -- Treesitter features for installed languages must be enabled manually
@@ -28,6 +59,8 @@ vim.api.nvim_create_autocmd('FileType', {
       vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
       vim.wo.foldmethod = 'expr'
       vim.wo.foldlevel = 99
+    else
+      vim.bo[args.buf].syntax = 'ON'
     end
   end,
 })

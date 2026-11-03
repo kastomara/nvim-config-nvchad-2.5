@@ -15,6 +15,7 @@ capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
 -- capabilities.textDocument.semanticTokens = nil
 
 -- Настройки для всех серверов
+vim.opt.shortmess:append('c')
 vim.lsp.config('*', { capabilities = capabilities })
 
 -- Настройка внешнего вида диагностики

@@ -14,7 +14,7 @@ o.relativenumber = true
 o.cursorline = true
 -- o.signcolumn = 'yes'
 o.laststatus = 3
-o.shortmess:append('I')
+o.shortmess:append('cIs')
 o.conceallevel = 0
 o.showmode = false -- Не отображаем режим, вместо этого переносим его в statusline
 -- В tabline можно показывать имя файла вместо строки статуса, если лишнюю
