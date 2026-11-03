@@ -1,0 +1,1 @@
+require('c_family').setup('clang++ -std=c++20 -g -Wall -Wextra -fsanitize=address,undefined')

@@ -1,0 +1,133 @@
+-- Общие настройки
+-- Самые частые значения в конфигах
+-- https://github.com/neovim/neovim/issues/21342
+-- https://gist.github.com/echasnovski/fa70dc75c475369747d2a485a13303fb
+-- У меня был соблазн все это в массив загнать, а потом задать значения для
+-- vim.opt, но из-за того, что порядок задания некоторых значений не
+-- соблюдается, то возникают странные баги
+
+local o = vim.opt
+
+-- Interface
+o.number = true
+o.relativenumber = true
+o.cursorline = true
+-- o.signcolumn = 'yes'
+o.laststatus = 3
+o.shortmess:append('I')
+o.conceallevel = 0
+o.showmode = false -- Не отображаем режим, вместо этого переносим его в statusline
+-- В tabline можно показывать имя файла вместо строки статуса, если лишнюю
+-- строку не жалко
+-- Для отключения табов
+-- o.showtabline = 0
+
+-- Базово bufferline показывается всегда, даже на стартовом экране
+-- С этой настройкой bufferline будет появляться при 2 открытых буферах
+always_show_bufferline = false
+
+-- Completion / Popup
+-- Без popup справка не отображается
+-- Возможно, стот это вынести в настройки LSP
+o.completeopt = { 'menu', 'menuone', 'noselect', 'fuzzy', 'popup' }
+-- В всплывающем окне с просмотром документации края прямоугольные.
+-- https://github.com/neovim/neovim/issues/38248#issuecomment-4038192073
+o.pumborder = 'rounded'
+o.winborder = 'rounded'
+-- Эта опция влияет на задержку перед появлением всплывающего окна
+o.updatetime = 200
+
+-- Красная линия
+-- o.colorcolumn = '+1'
+
+-- Включается автоматически, но требуется явная установка для некоторых плагинов
+if vim.fn.has('termguicolors') == 1 then
+  o.termguicolors = true
+end
+
+-- Cursor
+o.scrolloff = 8
+o.sidescrolloff = 8
+o.whichwrap = 'h,l,<,>,[,]'
+o.mouse = 'a'
+
+-- Text
+o.wrap = false
+-- o.linebreak = true
+-- o.breakindent = true
+-- o.showbreak = '↪ '
+o.expandtab = true
+o.tabstop = 4
+o.shiftwidth = 2
+o.softtabstop = 2
+o.smarttab = true
+o.autoindent = true
+o.smartindent = true
+-- o.textwidth = 80
+-- o.joinspaces = false
+-- Не имеет эффекта в Арче, так как устанавливается через системные плагины
+-- после загрузки init.lua
+-- o.formatoptions = { j = true, q = true }
+o.list = true
+o.listchars:append({
+  extends = '↪',
+  -- lead = '·',
+  nbsp = '␣',
+  precedes = '↩',
+  tab = '→ ',
+  trail = '·',
+})
+o.synmaxcol = 255
+
+-- Search
+-- Эти 4 настройки включены по дефолту
+o.ignorecase = true
+o.smartcase = true
+o.hlsearch = true
+o.incsearch = true
+
+o.inccommand = 'split'
+o.wildignorecase = true
+o.wildignore:append({
+  '*/.git/*',
+  '*/node_modules/*',
+})
+
+-- Files
+o.clipboard = 'unnamedplus'
+o.swapfile = false
+o.backup = false
+o.undofile = true
+o.hidden = true -- дефолт
+o.autoread = true -- дефолт
+o.confirm = true
+-- Отключает modeline во избежание инъекции команд через содержимое файлов
+o.modeline = false
+-- Claude советовыал добавить, но то скорее его бред
+--o.sessionoptions:append('localoptions')
+-- Хранит позицию курсора, метки и регистры между сессиями
+o.shada = "!,'100,<1000,s10,h"
+
+-- Windows
+o.splitbelow = true
+o.splitright = true
+
+-- Performance
+o.timeoutlen = 500
+
+-- Русская раскладка
+-- Переключение встроенной раскладки через <C-^>
+o.keymap = 'russian-jcukenwin'
+o.iminsert = 0
+o.imsearch = -1
+-- Сочетания клавиш работают при любой активной раскладке
+local function esc(s)
+  return (s:gsub('[;,\\]', '\\%0'))
+end
+
+local ru = 'фисвуапршолдьтщзйкыегмцчняхъжэбюё'
+  .. 'ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯХЪЖЭБЮЁ'
+local en = [[abcdefghijklmnopqrstuvwxyz[];',.`]]
+  .. [[ABCDEFGHIJKLMNOPQRSTUVWXYZ{}:"<>~]]
+
+o.langmap = esc(ru) .. ';' .. esc(en)

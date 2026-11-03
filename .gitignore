@@ -1,0 +1,4 @@
+Session.vim
+/nvim-pack-lock.json
+*.bak
+.DS_Store
