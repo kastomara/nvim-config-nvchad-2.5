@@ -1,6 +1,10 @@
+local runner = require('runner')
+
 local function python()
   local client = vim.lsp.get_clients({ bufnr = 0, name = 'basedpyright' })[1]
-  local py = client and client.config.settings.python.pythonPath or 'python3'
+  local py = client
+      and vim.tbl_get(client, 'config', 'settings', 'python', 'pythonPath')
+    or 'python3'
   return vim.fn.shellescape(py)
 end
 

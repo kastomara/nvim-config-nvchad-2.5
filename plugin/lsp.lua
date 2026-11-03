@@ -140,4 +140,4 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
-vim.lsp.enable({ 'rust_analyzer' }, { 'r_language_server' })
+vim.lsp.enable({ 'rust_analyzer', 'r_language_server' })

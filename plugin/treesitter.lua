@@ -21,8 +21,8 @@ require('nvim-treesitter').install({
 vim.api.nvim_create_autocmd('FileType', {
   callback = function(args)
     local lang = vim.treesitter.language.get_lang(args.match)
-    if vim.treesitter.language.add(lang) then
-      vim.treesitter.start()
+    if lang and pcall(vim.treesitter.language.add, lang) then
+      pcall(vim.treesitter.start)
 
       -- Configure code folding
       vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'

@@ -7,6 +7,9 @@ vim.pack.add({
 require('bufferline').setup({
   options = {
     mode = 'buffers',
+    -- Базово bufferline показывается всегда, даже на стартовом экране
+    -- С этой настройкой bufferline будет появляться при 2 открытых буферах
+    always_show_bufferline = false,
     diagnostics = 'nvim_lsp',
     separator_style = 'thin',
     show_buffer_close_icons = false,

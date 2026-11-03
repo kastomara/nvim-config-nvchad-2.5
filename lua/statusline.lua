@@ -14,14 +14,13 @@ function custom_mode()
 end
 
 function git_status()
-  status = vim.b.gitsigns_status_dict
+  local status = vim.b.gitsigns_status_dict
 
-  if not status then
+  if not status or not status.head or status.head == '' then
     return ''
   end
 
-  -- \u{f418}
-  result = '\u{e725} ' .. status.head
+  local result = '\u{e725} ' .. status.head
 
   if (status.added or 0) > 0 then
     result = result .. ' +' .. status.added

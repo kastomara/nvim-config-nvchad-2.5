@@ -103,7 +103,7 @@ map('n', '<A-0>', vim.cmd.tablast, { desc = 'Go to last tab' })
 map('n', '<leader>tn', vim.cmd.tabnew, { desc = 'New tab' })
 map('n', '<leader>tc', vim.cmd.tabclose, { desc = 'Close tab' })
 map('n', '<leader>to', vim.cmd.tabonly, { desc = 'Close other tabs' })
-map('n', '<leader>tm', '<:tabmove ', { desc = 'Move tab' })
+map('n', '<leader>tm', ':tabmove ', { desc = 'Move tab' })
 
 -- Перемещение курсора по "обернутым" строкам
 map('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
