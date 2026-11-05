@@ -3,7 +3,22 @@ vim.pack.add({ 'https://github.com/nvim-mini/mini.starter' })
 
 local starter = require('mini.starter')
 
-local LABEL_WIDTH = 36 -- ширина колонки с названиями, дальше идут клавиши
+local LABEL_WIDTH = 28 -- ширина колонки с названиями, дальше идут клавиши
+
+-- Замер времени загрузки плагинов
+local start_time = _G._nvim_start_hrtime or vim.uv.hrtime()
+local base_clock_ms = _G._nvim_start_hrtime and 0 or (os.clock() * 1000)
+local load_time_ms = base_clock_ms
+
+vim.api.nvim_create_autocmd('UIEnter', {
+  once = true,
+  callback = function()
+    load_time_ms = base_clock_ms + (vim.uv.hrtime() - start_time) / 1e6
+    if vim.bo.filetype == 'ministarter' then
+      starter.refresh()
+    end
+  end,
+})
 
 local function fzf(name)
   return function()
@@ -27,14 +42,44 @@ vim.keymap.set('n', '<leader>bn', new_file, { desc = 'New file' })
 
 -- Подсветка клавиш: фон берём у текущей темы
 local function setup_hl()
-  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
-  local visual = vim.api.nvim_get_hl(0, { name = 'Visual', link = false })
+  local function get_hl(name)
+    return vim.api.nvim_get_hl(0, { name = name, link = false })
+  end
+
+  local normal = get_hl('Normal')
+  local visual = get_hl('Visual')
+  local cursorLine = get_hl('CursorLine')
+  local func = get_hl('Function')
+  local special = get_hl('Special')
+  local title = get_hl('Title')
+  local comment = get_hl('Comment')
+
+  local accent_fg = func.fg or special.fg or title.fg or normal.fg
+  local pill_bg = cursorLine.bg or visual.bg or normal.bg
+
   vim.api.nvim_set_hl(
     0,
     'StarterKey',
-    { fg = normal.fg, bg = visual.bg, bold = true }
+    { fg = accent_fg, bg = pill_bg, bold = true }
   )
-  vim.api.nvim_set_hl(0, 'StarterKeyEdge', { fg = visual.bg })
+  vim.api.nvim_set_hl(0, 'StarterKeyEdge', { fg = pill_bg, bg = 'NONE' })
+
+  vim.api.nvim_set_hl(0, 'MiniStarterHeader', { fg = accent_fg, bold = true })
+  vim.api.nvim_set_hl(
+    0,
+    'MiniStarterSection',
+    { fg = title.fg or accent_fg, bold = true }
+  )
+  vim.api.nvim_set_hl(
+    0,
+    'MiniStarterItemPrefix',
+    { fg = special.fg or accent_fg, bold = true }
+  )
+  vim.api.nvim_set_hl(
+    0,
+    'MiniStarterFooter',
+    { fg = comment.fg, italic = true }
+  )
 end
 
 setup_hl()
@@ -85,22 +130,39 @@ local function keycaps_hook(content)
   return content
 end
 
+local function pluralize_plugins(n)
+  local mod10 = n % 10
+  local mod100 = n % 100
+  if mod10 == 1 and mod100 ~= 11 then
+    return 'плагин'
+  elseif mod10 >= 2 and mod10 <= 4 and (mod100 < 12 or mod100 > 14) then
+    return 'плагина'
+  end
+  return 'плагинов'
+end
+
 local header = table.concat({
-  [[                                           /$$   /$$                ]],
-  [[  /$$   /$$  /$$$$$$   /$$$$$$  /$$$$$$$  / $$  /$$$  /$$$$$$/$$$$  ]],
-  [[ | $$  | $$ /$$__  $$ /$$__  $$| $$  | $$ | $$ /$$$$ | $$_  $$_  $$ ]],
-  [[ | $$  | $$| $$$$$$$$| $$  \ $$| $$$$$$$$ | $$$$/ $$ | $$ \ $$ \ $$ ]],
-  [[ | $$$$$$$$| $$_____/| $$  | $$| $$  | $$ | $$$ | $$ | $$ | $$ | $$ ]],
-  [[ | $$  | $$|  $$$$$$$|  $$$$$$/| $$$$$$$/ | $$  | $$ | $$ | $$ | $$ ]],
-  [[ | $$  | $$ \_______/ \______/  \______/  |__/  |__/ |__/ |__/ |__/ ]],
-  [[ | $$  | $$                                                         ]],
-  [[ |__/  |__/                                                         ]],
+  [[  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗  ]],
+  [[  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║  ]],
+  [[  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║  ]],
+  [[  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║  ]],
+  [[  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║  ]],
+  [[  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝  ]],
 }, '\n')
 
 starter.setup({
+  evaluate_single = true,
   header = header,
   footer = function()
-    return #vim.pack.get() .. ' плагинов'
+    local count = #vim.pack.get()
+    local word = pluralize_plugins(count)
+    local ms = load_time_ms > 0 and load_time_ms or (os.clock() * 1000)
+    return string.format(
+      '⚡ %d %s · загружено за %.1f мс',
+      count,
+      word,
+      ms
+    )
   end,
   items = {
     item('\u{f0214}', 'Новый файл', { '␣', 'b', 'n' }, new_file),
@@ -128,16 +190,26 @@ starter.setup({
     item('\u{f013}', 'Настройки', { '␣', 'e', 'v' }, function()
       vim.cmd.edit(vim.env.MYVIMRC)
     end),
-    function()
-      local items = starter.sections.recent_files(5, false, false)()
-      for _, it in ipairs(items) do
-        it.section = 'Недавние файлы'
-      end
-      return items
-    end,
+    item('\u{f0425}', 'Выход', { 'q' }, function()
+      vim.cmd.qa()
+    end),
   },
   content_hooks = {
+    starter.gen_hook.adding_bullet('> '),
     keycaps_hook, -- должен идти до aligning, чтобы центровка учла ширину клавиш
     starter.gen_hook.aligning('center', 'center'),
   },
+})
+
+-- Быстрый выход по нажатию q
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'MiniStarterOpened',
+  callback = function(ev)
+    vim.keymap.set('n', 'q', '<cmd>qa<cr>', {
+      buffer = ev.buf,
+      silent = true,
+      nowait = true,
+      desc = 'Quit Neovim',
+    })
+  end,
 })
